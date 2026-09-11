@@ -97,7 +97,9 @@ def main():
     command = sys.argv[1]
 
     if command == "login" and len(sys.argv) == 4:
-        login(sys.argv[2], sys.argv[3])
+            login(sys.argv[2], sys.argv[3])
+    elif command == "login":
+        print("Usage: python todo_app.py login <username> <password>")
 
     elif command == "add" and len(sys.argv) > 2:
         add_todo(" ".join(sys.argv[2:]))
