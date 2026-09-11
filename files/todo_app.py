@@ -1,9 +1,11 @@
 
 #!/usr/bin/env python3
+
 """
 Simple CLI To-Do App with Login and User Profile
 
 Run:
+
     python todo_app.py login admin admin123
     python todo_app.py profile
     python todo_app.py add "Buy milk"
