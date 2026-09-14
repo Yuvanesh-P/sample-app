@@ -1,14 +1,14 @@
-
 #!/usr/bin/env python3
 """
-Simple CLI To-Do App with Login
+Simple CLI To-Do App with Login and User Profile
 
 Run:
-    python3 todo_app.py login admin admin123
-    python3 todo_app.py add "Buy milk"
-    python3 todo_app.py list
-    python3 todo_app.py done 1
-    python3 todo_app.py remove 1
+    python todo_app.py login admin admin123
+    python todo_app.py profile
+    python todo_app.py add "Buy milk"
+    python todo_app.py list
+    python todo_app.py done 1
+    python todo_app.py remove 1
 """
 
 import json
@@ -45,6 +45,13 @@ def login(username, password):
     return False
 
 
+def show_profile():
+    print("User Profile")
+    print("Username: admin")
+    print("Role: Standard User")
+    print("Status: Active")
+
+
 def add_todo(text):
     todos = load_todos()
     todos.append({"text": text, "done": False})
@@ -56,7 +63,7 @@ def list_todos():
     todos = load_todos()
 
     if not todos:
-        print("No tasks yet. Add one with: python todo_app.py add \"Task\"")
+        print('No tasks yet. Add one with: python todo_app.py add "Task"')
         return
 
     for i, t in enumerate(todos, start=1):
@@ -90,16 +97,20 @@ def main():
     if len(sys.argv) < 2:
         print(
             "Usage: python todo_app.py "
-            "[login|add|list|done|remove] [args]"
+            "[login|profile|add|list|done|remove] [args]"
         )
         return
 
     command = sys.argv[1]
 
     if command == "login" and len(sys.argv) == 4:
-            login(sys.argv[2], sys.argv[3])
+        login(sys.argv[2], sys.argv[3])
+
     elif command == "login":
         print("Usage: python todo_app.py login <username> <password>")
+
+    elif command == "profile":
+        show_profile()
 
     elif command == "add" and len(sys.argv) > 2:
         add_todo(" ".join(sys.argv[2:]))
@@ -116,10 +127,9 @@ def main():
     else:
         print(
             "Usage: python todo_app.py "
-            "[login|add|list|done|remove] [args]"
+            "[login|profile|add|list|done|remove] [args]"
         )
 
 
 if __name__ == "__main__":
     main()
-
