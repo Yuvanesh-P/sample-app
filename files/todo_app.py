@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Simple CLI To-Do App with Login and User Profile
@@ -134,4 +133,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
