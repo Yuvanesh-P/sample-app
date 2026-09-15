@@ -61,3 +61,22 @@ $ python todo_app.py list
 $ python todo_app.py remove 2
 Removed: Walk the dog
 ```
+## Git Workflow
+
+This project follows a feature-branch based Git workflow.
+
+### Branches
+
+- `main` - Production/release branch
+- `develop` - Development and integration branch
+- `feature/login` - Login functionality
+- `feature/userprofile` - User profile functionality
+
+### Creating a Feature Branch
+
+Start from the latest `develop` branch:
+
+```bash
+git switch develop
+git pull origin develop
+git switch -c feature/my-feature
