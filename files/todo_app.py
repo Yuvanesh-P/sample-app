@@ -1,51 +1,35 @@
-#!/usr/bin/env python3
-
-"""
-Simple CLI To-Do App with Login and User Profile
-
-Run:
-
-    python todo_app.py login admin admin123
-    python todo_app.py profile
-    python todo_app.py add "Buy milk"
-    python todo_app.py list
-    python todo_app.py done 1
-    python todo_app.py remove 1
-"""
-
 import json
-import sys
 import os
+import sys
 
-DATA_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "todos.json"
-)
-
-USERNAME = "admin"
-PASSWORD = "admin123"
+TODO_FILE = "todos.json"
 
 
 def load_todos():
-    if not os.path.exists(DATA_FILE):
+    if not os.path.exists(TODO_FILE):
         return []
 
-    with open(DATA_FILE, "r") as f:
-        return json.load(f)
+    with open(TODO_FILE, "r") as file:
+        return json.load(file)
 
 
 def save_todos(todos):
-    with open(DATA_FILE, "w") as f:
-        json.dump(todos, f, indent=2)
+    with open(TODO_FILE, "w") as file:
+        json.dump(todos, file, indent=4)
 
+
+# ---------------- LOGIN ----------------
 
 def login(username, password):
-    if username == USERNAME and password == PASSWORD:
+    if username == "admin" and password == "admin123":
         print("Login successful!")
         return True
 
     print("Invalid username or password.")
     return False
 
+
+# ---------------- USER PROFILE ----------------
 
 def show_profile():
     print("User Profile")
@@ -54,83 +38,133 @@ def show_profile():
     print("Status: Active")
 
 
-def add_todo(text):
+# ---------------- TODO FUNCTIONS ----------------
+
+def get_task_text(todo):
+    """Support both old 'text' and new 'task' todo formats."""
+    return todo.get("task", todo.get("text", ""))
+
+
+def add_todo(task):
     todos = load_todos()
-    todos.append({"text": text, "done": False})
+
+    todos.append({
+        "task": task,
+        "done": False
+    })
+
     save_todos(todos)
-    print(f'Added: "{text}"')
+    print("Todo added successfully.")
 
 
 def list_todos():
     todos = load_todos()
 
     if not todos:
-        print('No tasks yet. Add one with: python todo_app.py add "Task"')
+        print("No todos found.")
         return
 
-    for i, t in enumerate(todos, start=1):
-        mark = "x" if t["done"] else " "
-        print(f"[{mark}] {i}. {t['text']}")
+    for index, todo in enumerate(todos, start=1):
+        task = get_task_text(todo)
+        status = "Done" if todo.get("done", False) else "Pending"
+        print(f"{index}. {task} - {status}")
 
 
-def mark_done(index):
+def done_todo(task_id):
     todos = load_todos()
 
-    if 1 <= index <= len(todos):
-        todos[index - 1]["done"] = True
-        save_todos(todos)
-        print(f"Marked done: {todos[index - 1]['text']}")
-    else:
-        print("Invalid task number.")
+    if task_id < 1 or task_id > len(todos):
+        print("Error: Invalid task number.")
+        return
+
+    todos[task_id - 1]["done"] = True
+    save_todos(todos)
+
+    print("Todo marked as done.")
 
 
-def remove_todo(index):
+def remove_todo(task_id):
     todos = load_todos()
 
-    if 1 <= index <= len(todos):
-        removed = todos.pop(index - 1)
-        save_todos(todos)
-        print(f"Removed: {removed['text']}")
-    else:
-        print("Invalid task number.")
+    if task_id < 1 or task_id > len(todos):
+        print("Error: Invalid task number.")
+        return
 
+    removed_task = todos.pop(task_id - 1)
+    task = get_task_text(removed_task)
+
+    save_todos(todos)
+
+    print(f"Todo removed: {task}")
+
+
+# ---------------- MAIN ----------------
 
 def main():
     if len(sys.argv) < 2:
-        print(
-            "Usage: python todo_app.py "
-            "[login|profile|add|list|done|remove] [args]"
-        )
+        print("Usage:")
+        print("  python todo_app.py login <username> <password>")
+        print("  python todo_app.py profile")
+        print("  python todo_app.py add <task>")
+        print("  python todo_app.py list")
+        print("  python todo_app.py done <task_number>")
+        print("  python todo_app.py remove <task_number>")
         return
 
     command = sys.argv[1]
 
-    if command == "login" and len(sys.argv) == 4:
-        login(sys.argv[2], sys.argv[3])
+    if command == "login":
+        if len(sys.argv) != 4:
+            print("Usage: python todo_app.py login <username> <password>")
+            return
 
-    elif command == "login":
-        print("Usage: python todo_app.py login <username> <password>")
+        username = sys.argv[2]
+        password = sys.argv[3]
+
+        login(username, password)
 
     elif command == "profile":
         show_profile()
 
-    elif command == "add" and len(sys.argv) > 2:
-        add_todo(" ".join(sys.argv[2:]))
+    elif command == "add":
+        if len(sys.argv) < 3:
+            print("Usage: python todo_app.py add <task>")
+            return
+
+        task = " ".join(sys.argv[2:])
+        add_todo(task)
 
     elif command == "list":
         list_todos()
 
-    elif command == "done" and len(sys.argv) > 2:
-        mark_done(int(sys.argv[2]))
+    elif command == "done":
+        if len(sys.argv) != 3:
+            print("Usage: python todo_app.py done <task_number>")
+            return
 
-    elif command == "remove" and len(sys.argv) > 2:
-        remove_todo(int(sys.argv[2]))
+        try:
+            task_id = int(sys.argv[2])
+        except ValueError:
+            print("Error: Task number must be a number.")
+            return
+
+        done_todo(task_id)
+
+    elif command == "remove":
+        if len(sys.argv) != 3:
+            print("Usage: python todo_app.py remove <task_number>")
+            return
+
+        try:
+            task_id = int(sys.argv[2])
+        except ValueError:
+            print("Error: Task number must be a number.")
+            return
+
+        remove_todo(task_id)
 
     else:
-        print(
-            "Usage: python todo_app.py "
-            "[login|profile|add|list|done|remove] [args]"
-        )
+        print(f"Unknown command: {command}")
 
 
 if __name__ == "__main__":
